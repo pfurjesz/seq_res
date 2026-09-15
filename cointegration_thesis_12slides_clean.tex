@@ -1,0 +1,435 @@
+\documentclass[aspectratio=169,10pt]{beamer}
+
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,bm,booktabs,array}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc}
+\usepackage{ragged2e}
+\renewcommand{\familydefault}{\sfdefault}
+
+% ---------- Palette ----------
+\definecolor{navy}{RGB}{38,58,78}
+\definecolor{teal}{RGB}{53,145,141}
+\definecolor{teallight}{RGB}{232,244,242}
+\definecolor{peach}{RGB}{249,238,226}
+\definecolor{bluelight}{RGB}{237,243,247}
+\definecolor{textgray}{RGB}{76,86,96}
+\definecolor{linegray}{RGB}{190,201,208}
+\definecolor{softorange}{RGB}{214,145,81}
+
+\setbeamercolor{normal text}{fg=textgray,bg=white}
+\setbeamercolor{structure}{fg=teal}
+\setbeamercolor{frametitle}{fg=navy,bg=white}
+\setbeamercolor{title}{fg=navy}
+\setbeamercolor{subtitle}{fg=teal}
+\setbeamertemplate{navigation symbols}{}
+\setbeamersize{text margin left=0.72cm,text margin right=0.72cm}
+
+\setbeamertemplate{frametitle}{%
+  \nointerlineskip
+  \begin{beamercolorbox}[wd=\paperwidth,leftskip=0.72cm,rightskip=0.72cm,sep=0.10cm]{frametitle}
+    \vspace{0.12cm}%
+    \fontsize{15.5}{17.5}\selectfont\insertframetitle\par
+    \vspace{0.07cm}%
+    {\color{teal}\rule{0.945\textwidth}{0.45pt}}
+    \vspace{0.01cm}%
+  \end{beamercolorbox}%
+}
+
+\setbeamertemplate{footline}{%
+  \leavevmode%
+  \hbox{%
+    \begin{beamercolorbox}[wd=.82\paperwidth,ht=0.35cm,dp=0.15cm,leftskip=0.72cm]{author in head/foot}%
+      \color{textgray}\fontsize{5.8}{6.5}\selectfont Robust Cointegration Testing for Statistical Arbitrage
+    \end{beamercolorbox}%
+    \begin{beamercolorbox}[wd=.18\paperwidth,ht=0.35cm,dp=0.15cm,rightskip=0.72cm plus1fil]{date in head/foot}%
+      \hfill\color{textgray}\fontsize{5.8}{6.5}\selectfont \insertframenumber/\inserttotalframenumber
+    \end{beamercolorbox}%
+  }%
+}
+
+\newenvironment{tealpanel}{\begin{beamercolorbox}[wd=\linewidth,sep=0.16cm,rounded=true]{teal panel}}{\end{beamercolorbox}}
+\newenvironment{peachpanel}{\begin{beamercolorbox}[wd=\linewidth,sep=0.16cm,rounded=true]{peach panel}}{\end{beamercolorbox}}
+\newenvironment{bluepanel}{\begin{beamercolorbox}[wd=\linewidth,sep=0.16cm,rounded=true]{blue panel}}{\end{beamercolorbox}}
+\setbeamercolor{teal panel}{bg=teallight,fg=textgray}
+\setbeamercolor{peach panel}{bg=peach,fg=textgray}
+\setbeamercolor{blue panel}{bg=bluelight,fg=textgray}
+
+\newcommand{\plotblank}[2][]{%
+  \vspace{0.06cm}
+  {\color{linegray}\setlength{\fboxsep}{0pt}\setlength{\fboxrule}{0.45pt}%
+  \fbox{\parbox[c][#2][c]{0.985\linewidth}{\centering\color{linegray}\scriptsize #1}}}%
+}
+
+\AtBeginEnvironment{frame}{\footnotesize}
+
+\begin{document}
+
+% ============================================================
+\begin{frame}[plain]
+\vspace{0.82cm}
+{\color{navy}\fontsize{24}{27}\selectfont\bfseries Robust Cointegration Testing\\for Statistical Arbitrage\par}
+\vspace{0.42cm}
+{\color{teal}\fontsize{11.5}{14}\selectfont From estimator sensitivity to rolling stability and revalidation\par}
+\vspace{0.72cm}
+\begin{columns}[T,onlytextwidth]
+  \begin{column}{0.46\textwidth}
+    \begin{tealpanel}
+      \centering\color{navy}\bfseries Why does $\hat\beta$ fluctuate?
+    \end{tealpanel}
+  \end{column}
+  \begin{column}{0.46\textwidth}
+    \begin{peachpanel}
+      \centering\color{navy}\bfseries When is a cointegrating relation reliable?
+    \end{peachpanel}
+  \end{column}
+\end{columns}
+\vfill
+
+\end{frame}
+
+% ============================================================
+\begin{frame}{1. Simple least-squares example: the coefficient can fluctuate although $\beta$ is fixed}
+\small
+Assume the same regressors are observed repeatedly,
+\[
+ y_i=\beta x_i+\varepsilon_i,\qquad E[\varepsilon_i]=0,\qquad \operatorname{Var}(\varepsilon_i)=\sigma_\varepsilon^2,
+\]
+and only the realization of the noise changes. Then
+\[
+\boxed{\hat\beta-\beta=\frac{\sum_i x_i\varepsilon_i}{\sum_i x_i^2}}
+\qquad\text{(centered one-regressor case).}
+\]
+
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.47\textwidth}
+\begin{tealpanel}
+\textbf{Large $Y$-side shock}
+
+If $|\varepsilon_i|$ is large, the numerator can be large even though the underlying coefficient has not changed.
+\end{tealpanel}
+\end{column}
+\begin{column}{0.47\textwidth}
+\begin{peachpanel}
+\textbf{Little information in $X$}
+
+If $\sum_i x_i^2$ is small, the same disturbance produces a much larger change in the fitted coefficient.
+\end{peachpanel}
+\end{column}
+\end{columns}
+
+\vspace{0.14cm}
+\begin{bluepanel}
+\centering
+\textbf{First distinction:} a moving estimate does not by itself imply a moving true coefficient.
+\end{bluepanel}
+\end{frame}
+
+% ============================================================
+\begin{frame}{2. Cointegration: coefficient fluctuation also changes the residual being tested}
+\small
+For a candidate cointegrating regression,
+\[
+ y_t=\alpha+\beta x_t+u_t,\qquad x_t,y_t\sim I(1),\qquad u_t\sim I(0),
+\]
+the estimated coefficient defines the residual itself:
+\[
+\boxed{\hat u_t(\hat\beta)=y_t-\hat\alpha-\hat\beta x_t.}
+\]
+
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.47\textwidth}
+\begin{tealpanel}
+\textbf{Coefficient side}
+
+Across windows we observe
+\[
+\hat\beta_1,\hat\beta_2,\ldots
+\]
+which may fluctuate because of estimation sensitivity or because the underlying relation truly changes.
+\end{tealpanel}
+\end{column}
+\begin{column}{0.47\textwidth}
+\begin{peachpanel}
+\textbf{Residual side}
+
+Every new $\hat\beta_t$ produces a new residual series $\hat u(\hat\beta_t)$; therefore the stationarity statistic / p-value can fluctuate together with the coefficient estimate.
+\end{peachpanel}
+\end{column}
+\end{columns}
+
+\vspace{0.11cm}
+\begin{bluepanel}
+\centering
+A usable local relation therefore needs both a sufficiently reliable coefficient and a stationary residual.
+\end{bluepanel}
+\vspace{0.04cm}
+{\color{textgray}\fontsize{5.2}{5.8}\selectfont Cointegration reference: Engle \& Granger (1987).}
+\end{frame}
+
+% ============================================================
+\begin{frame}{3. Empirical illustration: rolling coefficient fluctuation}
+\vspace{0.28cm}
+\plotblank[]{5.65cm}
+\end{frame}
+
+% ============================================================
+\begin{frame}{4. Empirical illustration: residual-stationarity evidence fluctuates too}
+\vspace{0.28cm}
+\plotblank[]{5.65cm}
+\end{frame}
+
+% ============================================================
+\begin{frame}{5. Mathematical formalization I: sources of coefficient fluctuation}
+\scriptsize
+Let $\hat{\bm\beta}$ denote the exact OLS solution and $\tilde{\bm\beta}$ the numerically computed value.
+
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.49\textwidth}
+\begin{tealpanel}
+\textbf{Statistical estimation uncertainty}
+
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.32\linewidth} p{0.60\linewidth}}
+\textbf{Component} & \textbf{Mathematical representation}\\[1mm]
+noise in $Y$ & disturbance scale $\sigma_\varepsilon^2$ and realized $\varepsilon$\\[1mm]
+finite sample & limited total information in $X'X$; roughly $X'X\approx n\Sigma_X$\\[1mm]
+regressor geometry & small eigenvalues of $X'X$: little information in some coefficient directions
+\end{tabular}
+\end{tealpanel}
+
+\vspace{0.10cm}
+\begin{bluepanel}
+Sample size and regressor geometry jointly determine the information in $X'X$; together with the disturbance scale they determine statistical coefficient uncertainty.
+\end{bluepanel}
+\end{column}
+
+\begin{column}{0.47\textwidth}
+\begin{peachpanel}
+\textbf{Numerical computation error}
+\[
+\boxed{\bm e^{\rm num}=\tilde{\bm\beta}-\hat{\bm\beta}.}
+\]
+Poor conditioning can amplify floating-point or algorithmic perturbations. This is distinct from the statistical variance of exact OLS.
+\end{peachpanel}
+
+\vspace{0.10cm}
+\begin{tealpanel}
+\textbf{Genuine relation change}
+\[
+\bm\beta_{t+1}^{\star}\neq\bm\beta_t^{\star}.
+\]
+Even with abundant information and exact arithmetic, the fitted coefficient should move if the underlying relation itself changes.
+\end{tealpanel}
+\end{column}
+\end{columns}
+
+\vspace{0.05cm}
+{\color{textgray}\fontsize{5.2}{5.8}\selectfont References: Cook (1977); Belsley, Kuh \& Welsch (1980); Higham (2002).}
+\end{frame}
+
+% ============================================================
+\begin{frame}{6. Mathematical formalization II: fixed-window sampling uncertainty}
+\scriptsize
+Under local coefficient constancy and homoskedastic errors,
+\[
+\boxed{\operatorname{Var}(\hat{\bm\beta}\mid X)=\sigma_\varepsilon^2(X'X)^{-1}.}
+\]
+For centered regressors, $n^{-1}X'X$ is the empirical second-moment / covariance scale, so approximately
+\[
+\boxed{\operatorname{Var}(\hat{\bm\beta}\mid X)\approx
+\frac{\sigma_\varepsilon^2}{n}\,\Sigma_X^{-1}.}
+\]
+
+Let $q_k$ be an eigenvector of $X'X$ with eigenvalue $\lambda_k$. Then
+\[
+\boxed{\operatorname{Var}(q_k'\hat{\bm\beta}\mid X)=\frac{\sigma_\varepsilon^2}{\lambda_k}.}
+\]
+Under a Gaussian reference model,
+\[
+P\!\left(|q_k'(\hat{\bm\beta}-\bm\beta)|>c\mid X\right)
+=2\Phi\!\left(-\frac{c\sqrt{\lambda_k}}{\sigma_\varepsilon}\right).
+\]
+
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.46\textwidth}
+\begin{tealpanel}
+\centering
+$\sigma_\varepsilon\uparrow$\\
+larger possible $Y$-side disturbances
+\end{tealpanel}
+\end{column}
+\begin{column}{0.46\textwidth}
+\begin{peachpanel}
+\centering
+$\lambda_k\downarrow$\\
+less information in direction $q_k$
+\end{peachpanel}
+\end{column}
+\end{columns}
+
+\vspace{0.08cm}
+\begin{bluepanel}
+\centering
+\textbf{Together these are the SE:} high noise + low information $\Rightarrow$ larger probability of a large sampling-induced coefficient deviation, even when the true $\beta$ is unchanged.
+\end{bluepanel}
+\end{frame}
+
+% ============================================================
+\begin{frame}{7. Mathematical formalization III: the additional effect of moving the window}
+\scriptsize
+The fixed-window covariance asks how $\hat\beta$ varies if the same $X$ is kept and the $Y$-noise is regenerated. Our actual rolling object is different:
+\[
+\boxed{\Delta\hat{\bm\beta}_t=\hat{\bm\beta}_{t+1}-\hat{\bm\beta}_t,}
+\]
+because one case $(\bm x_-,y_-)$ leaves and one case $(\bm x_+,y_+)$ enters.
+
+Let $G_t=X_t'X_t$, $r_-=y_--\bm x_-'\hat{\bm\beta}_t$, and $h_-=\bm x_-'G_t^{-1}\bm x_-$. The exact delete--add update is
+\[
+\boxed{
+\Delta\hat{\bm\beta}_t
+=-\frac{G_t^{-1}\bm x_-}{1-h_-}\,r_-
++\frac{G_{t,-}^{-1}\bm x_+}{1+h_+^{(-)}}\,r_+^{(-)} }
+\]
+with $G_{t,-}=G_t-\bm x_-\bm x_-'$ and $h_+^{(-)}=\bm x_+'G_{t,-}^{-1}\bm x_+$.
+
+For intuition, along a weak-information direction $q_k$,
+\[
+\boxed{
+q_k'\Delta\hat{\bm\beta}_t
+\approx
+\frac{(q_k'\bm x_+)r_+-(q_k'\bm x_-)r_-}{\lambda_k}.}
+\]
+
+\begin{bluepanel}
+\centering
+\textbf{Large rolling movement:} little information in the old window ($\lambda_k$ small) + entering/leaving $x$ aligned with that direction + a large prediction residual.
+\end{bluepanel}
+\vspace{0.04cm}
+{\color{textgray}\fontsize{5.2}{5.8}\selectfont Regression-diagnostics language: $h_i$ is leverage; the realized coefficient change induced by a case is influence. Cook (1977).}
+\end{frame}
+
+% ============================================================
+\begin{frame}{8. Forward qualification of the fitted relation}
+\scriptsize
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.47\textwidth}
+\begin{tealpanel}
+\textbf{Detection / calibration window}
+\begin{enumerate}\setlength\itemsep{0.05cm}
+\item Choose a pre-specified minimum window length $L_{\min}$.
+\item Estimate the candidate relation $\hat{\bm\beta}_0$.
+\item Quantify its statistical sensitivity from $\hat\sigma_\varepsilon^2(X'X)^{-1}$ and the implied rolling-update scale.
+\end{enumerate}
+\end{tealpanel}
+
+\vspace{0.10cm}
+\begin{peachpanel}
+Do \textbf{not} search the same sample for the window giving the smallest SE and then claim stability from that same sample; that introduces selection.
+\end{peachpanel}
+\end{column}
+
+\begin{column}{0.49\textwidth}
+\begin{bluepanel}
+\textbf{Forward proof-collection period}
+
+Freeze the candidate $\hat{\bm\beta}_0$ and collect future observations. Require simultaneously:
+\begin{enumerate}\setlength\itemsep{0.06cm}
+\item \textbf{coefficient reliability:} future rolling movements are compatible with the predicted sampling / replacement sensitivity;
+\item \textbf{residual validity:} $u_s^{(0)}=y_s-x_s'\hat{\bm\beta}_0$ continues to behave as a stationary residual.
+\end{enumerate}
+\end{bluepanel}
+
+\vspace{0.10cm}
+\begin{tealpanel}
+\centering
+The two conditions can be evaluated over the \textbf{same future period}, but they answer different questions and should remain distinguishable.
+\end{tealpanel}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ============================================================
+\begin{frame}{9. From sensitivity qualification to structural-change monitoring}
+\scriptsize
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.47\textwidth}
+\begin{tealpanel}
+\textbf{Reference / local-null layer}
+
+Assume temporarily
+\[
+H_{0,t}:\quad \bm\beta_s^{\star}=\bm\beta_t^{\star}
+\]
+over the monitoring horizon. Use the current noise and information to obtain the expected distribution / scale of
+\[
+\Delta\hat{\bm\beta}_t.
+\]
+This tells us how much movement is plausible \emph{without} structural change.
+\end{tealpanel}
+\end{column}
+
+\begin{column}{0.47\textwidth}
+\begin{peachpanel}
+\textbf{Structural layer}
+
+If realized movements persistently exceed that reference behavior, investigate
+\[
+\bm\beta_{t+1}^{\star}\neq\bm\beta_t^{\star}.
+\]
+Classical CUSUM / sequential change-point methods provide the natural comparison literature.
+\end{peachpanel}
+\end{column}
+\end{columns}
+
+\vspace{0.14cm}
+\begin{bluepanel}
+\centering
+\textbf{Interpretation:} first quantify estimator sensitivity; only then interpret excess movement as evidence for a changing relation. After an alarm: suspend, re-estimate, and revalidate the newly defined residual.
+\end{bluepanel}
+
+\vspace{0.10cm}
+{\color{textgray}\fontsize{5.4}{6.1}\selectfont References: Brown, Durbin \& Evans (1975); Horv\'ath, Hu\v{s}kov\'a, Kokoszka \& Steinebach (2004); Wagner \& Wied (2017); Trapani \& Whitehouse (2020).}
+\end{frame}
+
+% ============================================================
+\begin{frame}{10. Results}
+\vspace{0.28cm}
+\plotblank[]{5.95cm}
+\end{frame}
+
+% ============================================================
+\begin{frame}{11. Research question and references}
+\begin{bluepanel}
+\centering\bfseries
+Can we quantify the rolling coefficient movement that is plausible from statistical sensitivity alone, and use excess movement together with residual stationarity to qualify and monitor a local cointegrating relation?
+\end{bluepanel}
+
+\vspace{0.12cm}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.47\textwidth}
+\textbf{Core sequence}
+\begin{enumerate}\setlength\itemsep{0.08cm}
+\item Explain fixed-window sampling uncertainty through noise and information.
+\item Extend it to the actual delete--add rolling update $\Delta\hat\beta_t$.
+\item Qualify the candidate forward using coefficient reliability and residual stationarity.
+\item Monitor for persistent excess movement / breakdown; update and revalidate when needed.
+\end{enumerate}
+\end{column}
+\begin{column}{0.50\textwidth}
+{\fontsize{5.55}{6.25}\selectfont
+\textbf{Selected references}\par\vspace{0.045cm}
+Engle, R.F. \& Granger, C.W.J. (1987). \emph{Co-integration and Error Correction: Representation, Estimation, and Testing}. Econometrica 55(2), 251--276.\par\vspace{0.04cm}
+Cook, R.D. (1977). \emph{Detection of Influential Observation in Linear Regression}. Technometrics 19(1), 15--18.\par\vspace{0.04cm}
+Belsley, D.A., Kuh, E. \& Welsch, R.E. (1980). \emph{Regression Diagnostics}. Wiley.\par\vspace{0.04cm}
+Brown, R.L., Durbin, J. \& Evans, J.M. (1975). \emph{Techniques for Testing the Constancy of Regression Relationships Over Time}. JRSS B 37(2), 149--163.\par\vspace{0.04cm}
+Horv\'ath, L., Hu\v{s}kov\'a, M., Kokoszka, P. \& Steinebach, J. (2004). \emph{Monitoring Changes in Linear Models}. J. Stat. Plann. Inference 126, 225--251.\par\vspace{0.04cm}
+Wagner, M. \& Wied, D. (2017). \emph{Consistent Monitoring of Cointegrating Relationships: The US Housing Market and the Subprime Crisis}. J. Time Series Analysis.\par\vspace{0.04cm}
+Trapani, L. \& Whitehouse, E. (2020). \emph{Sequential Monitoring for Cointegrating Regressions}. arXiv:2003.12182.\par\vspace{0.04cm}
+Higham, N.J. (2002). \emph{Accuracy and Stability of Numerical Algorithms}, 2nd ed. SIAM.
+}
+\end{column}
+\end{columns}
+\end{frame}
+
+\end{document}
