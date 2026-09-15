@@ -1,0 +1,12 @@
+$$
+E[\hat{\beta} \mid X]=\beta,
+$$
+
+
+$$
+\begin{aligned}
+\operatorname{Var}(\hat{\beta} \mid X) & =\operatorname{Var}\left(\left.\frac{\sum_i x_i \varepsilon_i}{\sum_i x_i^2} \right\rvert\, X\right) \\
+& =\frac{\sum_i x_i^2 \sigma_{\varepsilon}^2}{\left(\sum_i x_i^2\right)^2} \\
+& =\frac{\sigma_{\varepsilon}^2}{\sum_i x_i^2} .
+\end{aligned}
+$$
