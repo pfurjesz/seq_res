@@ -13,203 +13,179 @@ $$
 
 --------------------
 
-\begin{frame}{Rolling-window movement: what makes $\hat\beta$ change?}
+\begin{frame}{Rolling-window movement and coefficient sensitivity}
 
-\small
+\scriptsize
 
-Consider the same one-regressor setting as before,
+Consider the centered regression
 \[
-y_i = \beta x_i + \varepsilon_i,
+y_i=\beta x_i+\varepsilon_i,
 \qquad
-\hat\beta_t
-=
-\frac{\sum_{i\in W_t} x_i y_i}
-     {\sum_{i\in W_t} x_i^2},
-\]
-where the variables are centered.
-
-\vspace{0.3em}
-
-Moving the window by $k$ observations means
-\[
-W_t \longrightarrow W_{t+k}:
-\qquad
-\underbrace{k\text{ observations leave}}_{\mathcal D_t}
-\qquad+\qquad
-\underbrace{k\text{ observations enter}}_{\mathcal A_t}.
+\hat\beta_t=
+\frac{\sum_{i\in W_t}x_i y_i}
+     {\sum_{i\in W_t}x_i^2}.
 \]
 
 Define
 \[
-S_t=\sum_{i\in W_t}x_i^2.
+S_t:=\sum_{i\in W_t}x_i^2.
 \]
 
-Then, approximately,
+From the usual OLS result,
+\[
+\operatorname{Var}(\hat\beta_t\mid X_t)
+=
+\frac{\sigma_\varepsilon^2}{S_t},
+\qquad
+SE_t(\hat\beta)
+=
+\frac{\hat\sigma_{\varepsilon,t}}{\sqrt{S_t}}.
+\]
+
+Moving the window by $k$ observations means
+\[
+W_{t+k}
+=
+\left(W_t\setminus\mathcal D_t\right)\cup\mathcal A_t,
+\]
+where $\mathcal D_t$ contains the dropped observations and
+$\mathcal A_t$ the added observations.
+
+The new coefficient is
+\[
+\hat\beta_{t+k}
+=
+\frac{
+\hat\beta_t S_t
+-\sum_{i\in\mathcal D_t}x_i y_i
++\sum_{i\in\mathcal A_t}x_i y_i
+}{
+S_t
+-\sum_{i\in\mathcal D_t}x_i^2
++\sum_{i\in\mathcal A_t}x_i^2
+}.
+\]
+
+Hence
 \[
 \boxed{
 \hat\beta_{t+k}-\hat\beta_t
-\approx
+=
 \frac{
-\displaystyle
 \sum_{i\in\mathcal A_t}
-x_i\bigl(y_i-x_i\hat\beta_t\bigr)
+x_i(y_i-x_i\hat\beta_t)
 -
 \sum_{i\in\mathcal D_t}
-x_i\bigl(y_i-x_i\hat\beta_t\bigr)
+x_i(y_i-x_i\hat\beta_t)
 }{
 S_t
++\sum_{i\in\mathcal A_t}x_i^2
+-\sum_{i\in\mathcal D_t}x_i^2
 }.
 }
 \]
 
-Thus the next coefficient movement depends on
-
-\[
-\boxed{
-\text{new / removed observations}
-\quad\times\quad
-\text{their prediction errors}
-\quad\div\quad
-\text{information in the old window}.
-}
-\]
-
-\vspace{0.3em}
-
-But from the previous slide,
-\[
-\boxed{
-SE_t(\hat\beta)
-=
-\frac{\hat\sigma_{\varepsilon,t}}
-{\sqrt{S_t}}.
-}
-\]
-
-Hence a large current SE summarizes exactly two conditions relevant
-for future coefficient movement:
-\[
-\begin{array}{cc}
-\displaystyle
-\hat\sigma_{\varepsilon,t}\ \text{large}
-&
-\displaystyle
-S_t\ \text{small}
-\\[1ex]
-\Downarrow & \Downarrow
-\\
-\text{large absolute future prediction errors}
-&
-\text{sensitive regression / little information}.
-\end{array}
-\]
-
 \begin{block}{Interpretation}
-A high $SE_t(\hat\beta)$ does not imply that the next coefficient
-\emph{must} move strongly. It identifies conditions under which
-large $|\hat\beta_{t+k}-\hat\beta_t|$ are more plausible.
+The coefficient changes because observations are added and removed.
+Large prediction errors and low information in the current design
+can generate large coefficient movements.
 \end{block}
 
 \end{frame}
 
 
--------------
+----------
 
-\begin{frame}{Rolling-window movement: what makes $\hat\beta$ change?}
 
-\small
+\begin{frame}{Why is the current SE informative about future movement?}
 
-Consider the same one-regressor setting as before,
+\scriptsize
+
+From the exact rolling-window formula,
 \[
-y_i = \beta x_i + \varepsilon_i,
-\qquad
-\hat\beta_t
+\hat\beta_{t+k}-\hat\beta_t
 =
-\frac{\sum_{i\in W_t} x_i y_i}
-     {\sum_{i\in W_t} x_i^2},
+\frac{
+\sum_{i\in\mathcal A_t}
+x_i(y_i-x_i\hat\beta_t)
+-
+\sum_{i\in\mathcal D_t}
+x_i(y_i-x_i\hat\beta_t)
+}{
+S_t+\Delta S_t
+},
 \]
-where the variables are centered.
-
-\vspace{0.3em}
-
-Moving the window by $k$ observations means
+where
 \[
-W_t \longrightarrow W_{t+k}:
-\qquad
-\underbrace{k\text{ observations leave}}_{\mathcal D_t}
-\qquad+\qquad
-\underbrace{k\text{ observations enter}}_{\mathcal A_t}.
+\Delta S_t
+=
+\sum_{i\in\mathcal A_t}x_i^2
+-
+\sum_{i\in\mathcal D_t}x_i^2.
 \]
 
-Define
+If only a small fraction of the window is replaced,
 \[
-S_t=\sum_{i\in W_t}x_i^2.
+|\Delta S_t|\ll S_t,
+\]
+then
+\[
+\frac{1}{S_t+\Delta S_t}
+=
+\frac{1}{S_t}
+\frac{1}{1+\Delta S_t/S_t}
+\approx
+\frac{1}{S_t}.
 \]
 
-Then, approximately,
+Therefore,
 \[
 \boxed{
 \hat\beta_{t+k}-\hat\beta_t
 \approx
 \frac{
-\displaystyle
 \sum_{i\in\mathcal A_t}
-x_i\bigl(y_i-x_i\hat\beta_t\bigr)
+x_i(y_i-x_i\hat\beta_t)
 -
 \sum_{i\in\mathcal D_t}
-x_i\bigl(y_i-x_i\hat\beta_t\bigr)
+x_i(y_i-x_i\hat\beta_t)
 }{
 S_t
 }.
 }
 \]
 
-Thus the next coefficient movement depends on
-
-\[
-\boxed{
-\text{new / removed observations}
-\quad\times\quad
-\text{their prediction errors}
-\quad\div\quad
-\text{information in the old window}.
-}
-\]
-
-\vspace{0.3em}
-
-But from the previous slide,
+Recall
 \[
 \boxed{
 SE_t(\hat\beta)
 =
-\frac{\hat\sigma_{\varepsilon,t}}
-{\sqrt{S_t}}.
+\frac{\hat\sigma_{\varepsilon,t}}{\sqrt{S_t}}.
 }
 \]
 
-Hence a large current SE summarizes exactly two conditions relevant
-for future coefficient movement:
+Thus a high current SE contains two relevant signals:
 \[
-\begin{array}{cc}
-\displaystyle
+\boxed{
 \hat\sigma_{\varepsilon,t}\ \text{large}
-&
-\displaystyle
-S_t\ \text{small}
-\\[1ex]
-\Downarrow & \Downarrow
-\\
-\text{large absolute future prediction errors}
-&
-\text{sensitive regression / little information}.
-\end{array}
+\quad\Rightarrow\quad
+\text{large absolute future prediction errors are more plausible}
+}
 \]
 
-\begin{block}{Interpretation}
-A high $SE_t(\hat\beta)$ does not imply that the next coefficient
-\emph{must} move strongly. It identifies conditions under which
-large $|\hat\beta_{t+k}-\hat\beta_t|$ are more plausible.
+and
+\[
+\boxed{
+S_t\ \text{small}
+\quad\Rightarrow\quad
+\text{the regression is more sensitive to entering/leaving observations}.
+}
+\]
+
+\begin{block}{Main idea}
+A large $SE_t(\hat\beta)$ does not determine the next movement,
+but identifies conditions under which large
+$|\hat\beta_{t+k}-\hat\beta_t|$ are more plausible.
 \end{block}
 
 \end{frame}
