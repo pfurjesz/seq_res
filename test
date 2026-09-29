@@ -1,0 +1,23 @@
+"\begin{frame}[t]{Engle--Granger: one fixed sample, then move the window}
+
+\vspace{.15cm}
+\textbf{Fit} $y=\alpha+\beta x+u$ \quad$\longrightarrow$\quad \textbf{test} residuals for a unit root.
+\src{Engle--Granger (1987).}
+\begin{columns}[c]
+\begin{column}{.54\textwidth}
+\begin{tikzpicture}\begin{axis}[deck,height=3.5cm,xmin=0,xmax=100,ymin=-6,ymax=3]
+\addplot[navy,restrict x to domain=0:100] coordinates {\xdata};
+\addplot[teal,restrict x to domain=0:100] coordinates {\ydata};
+\draw[navy,thick] (axis cs:20,-5.5) rectangle (axis cs:70,2.7);
+\draw[teal,dashed,thick] (axis cs:21,-5.8) rectangle (axis cs:71,2.4);
+\end{axis}\end{tikzpicture}
+\end{column}
+\begin{column}{.43\textwidth}
+\textcolor{navy}{$W_t\ \longrightarrow\ (\hat\beta_t,p_t)$}\par\vspace{.15cm}
+\textcolor{teal}{$W_{t+1}\ \longrightarrow\ (\hat\beta_{t+1},p_{t+1})$}\par\vspace{.2cm}
+Drop the oldest observation.\par Add the newest. Refit and retest.
+\end{column}
+\end{columns}
+\small Scheduled formation/trading periods hold a fitted relation for longer. Here we refit at \textbf{every observation}: faster response, but more frequent coefficient changes and repeated tests.
+\refs{Vidyamurthy (2004); Rad--Low--Faff (2016).}
+\end{frame}"
