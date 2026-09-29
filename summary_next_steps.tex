@@ -1,0 +1,35 @@
+\documentclass[10pt,aspectratio=169]{beamer}
+\usepackage{amsmath}
+\definecolor{navy}{HTML}{16324F}
+\definecolor{teal}{HTML}{008C95}
+\setbeamercolor{frametitle}{fg=navy}
+\setbeamercolor{structure}{fg=teal}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}{}
+\setbeamersize{text margin left=.7cm,text margin right=.7cm}
+\setbeamertemplate{frametitle}{\vspace{.2cm}\insertframetitle\par}
+\begin{document}
+\begin{frame}[t]{Summary: keeping adaptation while reducing estimation noise}
+\small
+\textcolor{navy}{\textbf{What we observed}}\\[.08cm]
+We replicated rolling cointegration testing and observed large fluctuations in $\hat\beta$.
+Short windows can respond faster to regime changes, but provide less information for estimating coefficients and detecting cointegration. Distinguishing sampling noise from true change remains difficult.
+
+\vspace{.25cm}
+\textcolor{teal}{\textbf{1. Anticipate unstable periods}}\\[.08cm]
+We examined the sources of coefficient sensitivity: residual noise and weak design information. Standard error combines both and showed predictive value for subsequent coefficient fluctuations in our exploratory analysis. Its forward interpretation relies on local persistence of noise and design.
+
+\vspace{.25cm}
+\textcolor{teal}{\textbf{2. Reduce noise by sharing information}}\\[.08cm]
+We propose estimating changes jointly across regressions for similar assets, using a low-rank structure. Sharing can reduce sampling variance and make genuine common changes easier to detect, at the cost of bias when the shared structure is inaccurate.
+
+\vspace{.22cm}
+\textcolor{navy}{\textbf{Working hypothesis:}} low-rank sharing can help distinguish true change from estimation noise. It does not identify the two automatically; this remains to be tested.
+
+\vfill
+\centering
+\textcolor{teal}{\normalsize Results on shared estimation coming soon.}\\[.12cm]
+\textcolor{navy}{\Large Thank you for your attention!}
+\vspace{.12cm}
+\end{frame}
+\end{document}
